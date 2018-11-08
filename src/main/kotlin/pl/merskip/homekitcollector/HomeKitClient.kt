@@ -5,6 +5,7 @@ import org.apache.http.client.methods.HttpPost
 import org.apache.http.entity.ByteArrayEntity
 import org.apache.http.impl.client.HttpClientBuilder
 import pl.merskip.homekitcollector.srp.SRP6Client
+import pl.merskip.homekitcollector.srp.SRP6GroupParams
 import pl.merskip.homekitcollector.tlv.TLVBuilder
 import pl.merskip.homekitcollector.tlv.TLVReader
 
@@ -37,19 +38,22 @@ class HomeKitClient {
         check(salt.size == 16)
         check(serverPublicKey.size == 384)
 
-        val srp = SRP6Client("Pair-Setup", pinCode, salt.toBigInteger(), serverPublicKey.toBigInteger(),
-                fromHex("""60975527 035CF2AD 1989806F 0407210B C81EDC04 E2762A56 AFD529DD DA2D4393"""))
+        val srp = SRP6Client(
+                "Pair-Setup", pinCode,
+                salt.toBigInteger(), serverPublicKey.toBigInteger(),
+                SRP6GroupParams.N3072_HAP
+        )
 
-        logger.debug("A= ${srp.A.rawByteArray.hexDescription}")
-        logger.debug("M1= ${srp.M1.rawByteArray.hexDescription}")
+        logger.debug("publicClientKey= ${srp.publicClientKey.rawByteArray.hexDescription}")
+        logger.debug("proof= ${srp.proof.rawByteArray.hexDescription}")
 
         val payload2 = post("/pair-setup",
                 mapOf("Content-Type" to "application/pairing+tlv8"),
                 TLVBuilder()
                         .append(0, 0) // PairingMethod
                         .append(6, 3) // Sequence = VerifyRequest
-                        .append(3, srp.A.rawByteArray) // PublicKey
-                        .append(4, srp.M1.rawByteArray) // Proof
+                        .append(3, srp.publicClientKey.rawByteArray) // PublicKey
+                        .append(4, srp.proof.rawByteArray) // Proof
                         .build()
         )
 
