@@ -47,6 +47,8 @@ class SRP6Client(
     val sessionKey: BigInteger
 
     init {
+        logger.trace("privateClientKey (a) = ${clientPrivateKey.rawByteArray.hexDescription}")
+
         hashedUserAndPassword = hash(salt, hash("$username:$password"))
         logger.trace("hashedUserAndPassword (x) = ${hashedUserAndPassword.rawByteArray.hexDescription}")
 
