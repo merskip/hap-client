@@ -32,9 +32,6 @@ class HomeKitClient {
         val salt = response1.get(2)!!
         val serverPublicKey = response1.get(3)!!
 
-        logger.debug("salt= ${salt.hexDescription}")
-        logger.debug("publicKey= ${serverPublicKey.hexDescription}")
-
         check(salt.size == 16)
         check(serverPublicKey.size == 384)
 
@@ -44,16 +41,13 @@ class HomeKitClient {
                 SRP6GroupParams.N3072_HAP
         )
 
-        logger.debug("publicClientKey= ${srp.publicClientKey.rawByteArray.hexDescription}")
-        logger.debug("proof= ${srp.proof.rawByteArray.hexDescription}")
-
         val payload2 = post("/pair-setup",
                 mapOf("Content-Type" to "application/pairing+tlv8"),
                 TLVBuilder()
                         .append(0, 0) // PairingMethod
                         .append(6, 3) // Sequence = VerifyRequest
                         .append(3, srp.publicClientKey.rawByteArray) // PublicKey
-                        .append(4, srp.proof.rawByteArray) // Proof
+                        .append(4, srp.clientProof.rawByteArray) // Proof
                         .build()
         )
 

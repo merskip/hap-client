@@ -41,7 +41,7 @@ class SRP6Client(
     val publicClientKey: BigInteger
 
     /** M1 */
-    val proof: BigInteger
+    val clientProof: BigInteger
 
     /** K */
     val sessionKey: BigInteger
@@ -69,11 +69,14 @@ class SRP6Client(
         premasterSecret = premasterSecretBase.modPow(premasterSecretExponent, params.modulus)
         logger.trace("premasterSecret (S) = ${premasterSecret.rawByteArray.hexDescription}")
 
-        proof = hash(publicClientKey, serverPublicKey, premasterSecret)
-        logger.trace("proof (M1) = ${proof.rawByteArray.hexDescription}")
-
         sessionKey = hash(premasterSecret)
         logger.trace("sessionKey (K) = ${sessionKey.rawByteArray.hexDescription}")
+
+        val paramsHash = hash(params.modulus).xor(hash(params.generator))
+        val usernameHash = hash(username)
+        clientProof = hash(paramsHash, usernameHash, salt, publicClientKey, serverPublicKey, sessionKey)
+        logger.trace("clientProof (M1) = ${clientProof.rawByteArray.hexDescription}")
+
     }
 
     companion object {
