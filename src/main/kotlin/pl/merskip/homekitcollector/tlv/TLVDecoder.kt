@@ -1,5 +1,6 @@
 package pl.merskip.homekitcollector.tlv
 
+import pl.merskip.homekitcollector.hexDescription
 import pl.merskip.homekitcollector.loggerFor
 
 class TLVDecoder {
@@ -11,7 +12,7 @@ class TLVDecoder {
         val chunks = mutableListOf<TLVDataChunk>()
         val iterator = data.iterator()
 
-        logger.trace("Decoding data (size=${data.size})")
+        logger.trace("Decoding data: ${data.hexDescription}")
 
         while (iterator.hasNext()) {
             val tag = iterator.nextByte()
