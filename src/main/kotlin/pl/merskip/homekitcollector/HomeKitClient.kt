@@ -54,7 +54,10 @@ class HomeKitClient {
         val response2 = TLVReader(payload2)
         check(response2.getInt(6) == 4)
 
-        logger.debug(response2.toString())
+        val serverProof = response2.get(4)!!.toBigInteger()
+        if (!srp.verifyServerProof(serverProof)) error("Failed verify server proof (M2)")
+
+
     }
 
     private fun post(endpoint: String, headers: Map<String, String> = emptyMap(), payload: ByteArray): ByteArray {

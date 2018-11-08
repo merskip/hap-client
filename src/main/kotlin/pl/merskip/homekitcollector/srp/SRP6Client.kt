@@ -87,6 +87,12 @@ class SRP6Client(
         }
     }
 
+    fun verifyServerProof(serverProof: BigInteger): Boolean {
+        logger.trace("Verifying server proof (M2) = ${serverProof.rawByteArray.hexDescription}")
+
+        return serverProof == hash(publicClientKey, clientProof, sessionKey)
+    }
+
     private fun hash(vararg strings: String): BigInteger =
             hash(strings.joinToString().toByteArray(Charsets.US_ASCII))
 
