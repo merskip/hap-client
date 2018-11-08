@@ -26,7 +26,7 @@ class SRP6Client(
     private val logger = loggerFor(javaClass)
 
     /** x */
-    private val hashedUserAndPassword: BigInteger
+    val hashedUserAndPassword: BigInteger
 
     /** v */
     val verifier: BigInteger
@@ -71,7 +71,7 @@ class SRP6Client(
         logger.trace("proof (M1) = ${proof.rawByteArray.hexDescription}")
 
         sessionKey = hash(premasterSecret)
-        logger.trace("sessionKey (k) = ${sessionKey.rawByteArray.hexDescription}")
+        logger.trace("sessionKey (K) = ${sessionKey.rawByteArray.hexDescription}")
     }
 
     companion object {

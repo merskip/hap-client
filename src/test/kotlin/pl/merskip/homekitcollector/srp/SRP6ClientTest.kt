@@ -6,8 +6,11 @@ import pl.merskip.homekitcollector.fromHex
 
 class SRP6ClientTest {
 
+    /**
+     * From HomeKit Accessory Protocol Specification (Non-Commercial Version) Release R1
+     */
     @Test
-    fun srp6client_checkCompatibility_HAPSpecificationNonCommercialVersion() {
+    fun srp6client_checkCompatibility_HAPSpecificationR1() {
         val srp = SRP6Client(
                 "alice", // (I)
                 "password123", // (P)
@@ -31,7 +34,7 @@ class SRP6ClientTest {
         assertEquals(
                 fromHex("""03AE5F3C 3FA9EFF1 A50D7DBB 8D2F60A1 EA66EA71 2D50AE97 6EE34641 A1CD0E51
                            C4683DA3 83E8595D 6CB56A15 D5FBC754 3E07FBDD D316217E 01A391A1 8EF06DFF"""),
-                srp.randomScramblingParameter
+                srp.randomScramblingParameter // u
         )
 
         assertEquals(
@@ -47,7 +50,7 @@ class SRP6ClientTest {
                            E14E8509 89224DDD 98576D79 385D2210 902E9F9B 1F2D86CF A47EE244 635465F7
                            1058421A 0184BE51 DD10CC9D 079E6F16 04E7AA9B 7CF7883C 7D4CE12B 06EBE160
                            81E23F27 A231D184 32D7D1BB 55C28AE2 1FFCF005 F57528D1 5A88881B B3BBB7FE"""),
-                srp.publicClientKey
+                srp.publicClientKey // A
         )
 
         assertEquals(
@@ -63,7 +66,7 @@ class SRP6ClientTest {
                            39566483 58ADFD96 6422F524 98732D68 D1D7FBEF 10D78034 AB8DCB6F 0FCF885C
                            C2B2EA2C 3E6AC866 09EA058A 9DA8CC63 531DC915 414DF568 B09482DD AC1954DE
                            C7EB714F 6FF7D44C D5B86F6B D1158109 30637C01 D0F6013B C9740FA2 C633BA89"""),
-                srp.verifier
+                srp.verifier // v
         )
 
         assertEquals(
@@ -79,14 +82,70 @@ class SRP6ClientTest {
                            D7F02B1B EB168571 4CE1DD1E 71808A13 7F788847 B7C6B7BF A1364474 B3B7E894
                            78954F6A 8E68D45B 85A88E4E BFEC1336 8EC0891C 3BC86CF5 00978801 78D86135
                            E7287234 58538858 D715B7B2 47406222 C1019F53 603F0169 52D49710 0858824C"""),
-                srp.premasterSecret
+                srp.premasterSecret // S
         )
 
         assertEquals(
                 fromHex("""5CBC219D B052138E E1148C71 CD449896 3D682549 CE91CA24 F098468F 06015BEB
                            6AF245C2 093F98C3 651BCA83 AB8CAB2B 580BBF02 184FEFDF 26142F73 DF95AC50"""),
-                srp.sessionKey
+                srp.sessionKey // K
         )
     }
 
+    /**
+     * From RFC 5054 - Using the Secure Remote Password †SRP‡ Protocol for TLS Authentication
+     */
+    @Test
+    fun srp6client_checkCompatibility_RFC5054() {
+        val srp = SRP6Client(
+                "alice", // (I)
+                "password123", // (P)
+                fromHex("""BEB25379 D1A8581E B5A72767 3A2441EE"""), // salt (s)
+                fromHex("""BD0C6151 2C692C0C B6D041FA 01BB152D 4916A1E7 7AF46AE1 05393011
+                           BAF38964 DC46A067 0DD125B9 5A981652 236F99D9 B681CBF8 7837EC99
+                           6C6DA044 53728610 D0C6DDB5 8B318885 D7D82C7F 8DEB75CE 7BD4FBAA
+                           37089E6F 9C6059F3 88838E7A 00030B33 1EB76840 910440B1 B27AAEAE
+                           EB4012B7 D7665238 A8E3FB00 4B117B58"""), // server public key B
+                SRP6GroupParams.N1024, // (N, g)
+                fromHex("""60975527 035CF2AD 1989806F 0407210B C81EDC04 E2762A56 AFD529DD
+                           DA2D4393""") // client private key (a)
+        )
+
+        assertEquals(
+                fromHex("""94B7555A ABE9127C C58CCF49 93DB6CF8 4D16C124"""),
+                srp.hashedUserAndPassword // x
+        )
+
+        assertEquals(
+                fromHex("""7E273DE8 696FFC4F 4E337D05 B4B375BE B0DDE156 9E8FA00A 9886D812
+                           9BADA1F1 822223CA 1A605B53 0E379BA4 729FDC59 F105B478 7E5186F5
+                           C671085A 1447B52A 48CF1970 B4FB6F84 00BBF4CE BFBB1681 52E08AB5
+                           EA53D15C 1AFF87B2 B9DA6E04 E058AD51 CC72BFC9 033B564E 26480D78
+                           E955A5E2 9E7AB245 DB2BE315 E2099AFB"""),
+                srp.verifier // v
+        )
+
+        assertEquals(
+                fromHex("""61D5E490 F6F1B795 47B0704C 436F523D D0E560F0 C64115BB 72557EC4
+                           4352E890 3211C046 92272D8B 2D1A5358 A2CF1B6E 0BFCF99F 921530EC
+                           8E393561 79EAE45E 42BA92AE ACED8251 71E1E8B9 AF6D9C03 E1327F44
+                           BE087EF0 6530E69F 66615261 EEF54073 CA11CF58 58F0EDFD FE15EFEA
+                           B349EF5D 76988A36 72FAC47B 0769447B"""),
+                srp.publicClientKey // A
+        )
+
+        assertEquals(
+                fromHex("""CE38B959 3487DA98 554ED47D 70A7AE5F 462EF019"""),
+                srp.randomScramblingParameter // u
+        )
+
+        assertEquals(
+                fromHex("""B0DC82BA BCF30674 AE450C02 87745E79 90A3381F 63B387AA F271A10D
+                           233861E3 59B48220 F7C4693C 9AE12B0A 6F67809F 0876E2D0 13800D6C
+                           41BB59B6 D5979B5C 00A172B4 A2A5903A 0BDCAF8A 709585EB 2AFAFA8F
+                           3499B200 210DCC1F 10EB3394 3CD67FC8 8A2F39A4 BE5BEC4E C0A3212D
+                           C346D7E4 74B29EDE 8A469FFE CA686E5A"""),
+                srp.premasterSecret // S
+        )
+    }
 }
