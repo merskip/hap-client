@@ -7,6 +7,10 @@ version '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
+    maven {
+        url "https://dl.bintray.com/terl/lazysodium-maven"
+    }
+
 }
 
 dependencies {
@@ -21,6 +25,12 @@ dependencies {
     compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.6'
     compile group: 'commons-io', name: 'commons-io', version: '2.6'
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.8.1'
+
+    compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.60'
+    compile group: 'net.i2p.crypto', name: 'eddsa', version: '0.3.0'
+
+    compile "com.goterl.lazycode:lazysodium-java:3.3.0"
+    compile "net.java.dev.jna:jna:5.1.0"
 }
 
 compileKotlin {

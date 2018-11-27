@@ -1,10 +1,12 @@
 package pl.merskip.homekitcollector
 
 import java.math.BigInteger
+import java.nio.ByteBuffer
+import java.util.*
 
 var ByteArray.hexDescription: String
     get() {
-        return joinToString(separator = " ", prefix = "[ ", postfix = " ]") { byte ->
+        return joinToString(separator = "", prefix = "[ ", postfix = " ]") { byte ->
             String.format("%02x", (byte.toInt() and 0xff))
         }
     }
@@ -25,6 +27,8 @@ fun ByteArray.toBigInteger(): BigInteger {
 
 fun fromHex(hex: String): BigInteger = BigInteger(hex.filter { it.isLetterOrDigit() }, 16)
 
+fun hex2bytes(hex: String): ByteArray = ByteArray(hex.length / 2) { hex.substring(it * 2, it * 2 + 2).toInt(16).toByte() }
+
 var BigInteger.rawByteArray: ByteArray
     get() {
         val bytes = toByteArray()
@@ -36,6 +40,17 @@ var BigInteger.rawByteArray: ByteArray
             System.arraycopy(bytes, 1, rawBytes, 0, rawBytes.size)
             rawBytes
         }
+    }
+    set(_) {
+        error("This property is read-only")
+    }
+
+var UUID.rawByteArray: ByteArray
+    get() {
+        val bytes = ByteBuffer.allocate(16)
+        bytes.putLong(mostSignificantBits)
+        bytes.putLong(leastSignificantBits)
+        return bytes.array()
     }
     set(_) {
         error("This property is read-only")
