@@ -26,6 +26,7 @@ import pl.merskip.homekitcollector.tlv.TLVBuilder
 import pl.merskip.homekitcollector.tlv.TLVReader
 import java.security.MessageDigest
 import java.security.SecureRandom
+import java.util.*
 
 
 class HomeKitClient {
@@ -103,10 +104,8 @@ class HomeKitClient {
         )
 
         // Step 3
-//        val iOSDevicePairingID = ByteArray(6)
-//        SecureRandom().nextBytes(iOSDevicePairingID)
-        val iOSDevicePairingID = "5857885a-8f3e-5afc-b7e4-3a2b711e4715"
-        val iOSDeviceInfo = listOf(iOSDeviceX, iOSDevicePairingID.toByteArray(), iOSDeviceLTPK.abyte)
+        val iOSDevicePairingID = UUID.randomUUID()
+        val iOSDeviceInfo = listOf(iOSDeviceX, iOSDevicePairingID.toString().toByteArray(), iOSDeviceLTPK.abyte)
                 .flatMap { it.asIterable() }
                 .toByteArray()
 
@@ -116,7 +115,7 @@ class HomeKitClient {
 
         // Step 5
         val subTLV = TLVBuilder()
-                .append(1, iOSDevicePairingID) // Username
+                .append(1, iOSDevicePairingID.toString().toByteArray()) // Username
                 .append(3, iOSDeviceLTPK.abyte) // Public key
                 .append(10, iOSDeviceSignature) // Signature
                 .build()
