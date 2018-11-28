@@ -3,6 +3,8 @@ package pl.merskip.homekitcollector
 import com.goterl.lazycode.lazysodium.LazySodium
 import com.goterl.lazycode.lazysodium.LazySodiumJava
 import com.goterl.lazycode.lazysodium.SodiumJava
+import com.goterl.lazycode.lazysodium.utils.Key
+import com.goterl.lazycode.lazysodium.utils.KeyPair
 import net.i2p.crypto.eddsa.EdDSAEngine
 import net.i2p.crypto.eddsa.EdDSAPrivateKey
 import net.i2p.crypto.eddsa.EdDSAPublicKey
@@ -25,6 +27,8 @@ import pl.merskip.homekitcollector.srp.SRP6GroupParams
 import pl.merskip.homekitcollector.tlv.TLVBuilder
 import pl.merskip.homekitcollector.tlv.TLVReader
 import java.security.MessageDigest
+import java.security.PrivateKey
+import java.security.PublicKey
 import java.security.SecureRandom
 import java.util.*
 
@@ -96,7 +100,7 @@ class HomeKitClient {
         val iOSDeviceLTPK = EdDSAPublicKey(pubKeySpec)
 
         // Step 2
-        val iOSDeviceX =  hkdfSHA512(
+        val iOSDeviceX = hkdfSHA512(
                 srp.sessionKey.rawByteArray,
                 "Pair-Setup-Controller-Sign-Salt".toByteArray(),
                 "Pair-Setup-Controller-Sign-Info".toByteArray(),
@@ -136,7 +140,7 @@ class HomeKitClient {
 
 
         val sodium = LazySodiumJava(SodiumJava())
-        val cipherText  = ByteArray(subTLV.size)
+        val cipherText = ByteArray(subTLV.size)
         sodium.cryptoStreamChacha20XorIc(cipherText, subTLV, subTLV.size.toLong(), "PS-Msg05".toByteArray(), 1, sharedKey)
         logger.info("CipherText: ${cipherText.hexDescription}")
 
@@ -192,7 +196,7 @@ class HomeKitClient {
 
 
         val accPubKeySpec = EdDSAPublicKeySpec(accessoryPublicKey, spec)
-        val accLTPK = EdDSAPublicKey(accPubKeySpec )
+        val accLTPK = EdDSAPublicKey(accPubKeySpec)
 
         sgr.initVerify(accLTPK)
         if (!sgr.verifyOneShot(material, accessorySignature)) {
@@ -200,6 +204,105 @@ class HomeKitClient {
         }
 
         logger.info("We are now pared!!!!!")
+
+
+        pairVerify(sodium, iOSDevicePairingID, iOSDeviceLTSK, accLTPK, sgr)
+    }
+
+    fun pairVerify(sodium: LazySodium, iOSDevicePairingID: UUID, iOSDeviceLTSK: PrivateKey, accLTPK: PublicKey, sgr: EdDSAEngine) {
+
+        val keyPair = randomCurve25519KeyPair(sodium)
+
+        val payload1 = post("/pair-verify",
+                mapOf("Content-Type" to "application/pairing+tlv8"),
+                TLVBuilder()
+                        .append(6, 1) // Sequence = m1
+                        .append(3, keyPair.publicKey.asBytes)
+                        .build()
+        )
+
+
+        val response3 = TLVReader(payload1)
+        check(response3.getInt(6) == 2)
+
+        val accessoryPublicKey = response3.get(3)!!
+        val accessoryEncryptedData = response3.get(5)!!
+
+        check(accessoryPublicKey.size == 32)
+
+        val sharedKey = sodium.cryptoScalarMult(keyPair.secretKey, Key.fromBytes(accessoryPublicKey))
+        logger.info("sharedKey: ${sharedKey.asBytes.hexDescription}")
+
+        val encryptionKey = hkdfSHA512(
+                sharedKey.asBytes,
+                "Pair-Verify-Encrypt-Salt".toByteArray(),
+                "Pair-Verify-Encrypt-Info".toByteArray(),
+                32
+        )
+
+        val encryptedMessage = accessoryEncryptedData.sliceArray(0 until accessoryEncryptedData.size - 16)
+        val authTag = accessoryEncryptedData.sliceArray(accessoryEncryptedData.size - 16 until accessoryEncryptedData.size)
+        logger.info("encryptedMessage     : ${encryptedMessage.hexDescription}")
+        logger.info("authTag              : ${authTag.hexDescription}")
+
+
+        val messageTLV = verifyAndDecrypt(sodium, encryptedMessage, authTag, ByteArray(0), "PV-Msg02".toByteArray(), encryptionKey)
+                ?: error("Failed verify or decrypt message")
+
+        val message = TLVReader(messageTLV)
+
+        val username = message.get(1)!!.toString(Charsets.UTF_8)
+        val signature = message.get(10)!!
+        logger.info("Username: $username")
+
+        val material = listOf(accessoryPublicKey, username.toByteArray(), keyPair.publicKey.asBytes)
+                .flatMap { it.asIterable() }
+                .toByteArray()
+
+        sgr.initVerify(accLTPK)
+        if (!sgr.verifyOneShot(material, signature)) {
+            error("Verify failed")
+        }
+
+        // create response
+
+        val clientMaterial = listOf(keyPair.publicKey.asBytes, iOSDevicePairingID.toString().toByteArray(), accessoryPublicKey)
+                .flatMap { it.asIterable() }
+                .toByteArray()
+
+        sgr.initSign(iOSDeviceLTSK)
+        val subTLV = TLVBuilder()
+                .append(1, iOSDevicePairingID.toString().toByteArray())
+                .append(10, sgr.signOneShot(clientMaterial))
+                .build()
+
+        val cipherText = ByteArray(subTLV.size)
+        sodium.cryptoStreamChacha20XorIc(cipherText, subTLV, subTLV.size.toLong(), "PV-Msg03".toByteArray(), 1, encryptionKey)
+        logger.info("CipherText: ${cipherText.hexDescription}")
+
+        val hmac = computePoly1305(sodium, cipherText, ByteArray(0), "PV-Msg03".toByteArray(), encryptionKey)
+        logger.info("hmac: ${hmac.hexDescription}")
+
+
+        val tlv = TLVBuilder()
+                .append(6, 3) // Sequence = KeyExchangeRequest
+                .append(5, listOf(cipherText, hmac).flatMap { it.asIterable() }.toByteArray())
+                .build()
+
+        logger.info("TLV: ${tlv.hexDescription}")
+
+        val payload2 = post("/pair-verify",
+                mapOf("Content-Type" to "application/pairing+tlv8"),
+                tlv
+        )
+        val response2 = TLVReader(payload2)
+        check(response2.getInt(6) == 4)
+    }
+
+    fun randomCurve25519KeyPair(sodium: LazySodium): KeyPair {
+        val secrectKey = Key.generate(sodium, 32)
+        val publicKey = sodium.cryptoScalarMultBase(secrectKey)
+        return KeyPair(publicKey, secrectKey)
     }
 
     fun hkdfSHA512(inputKeyingMaterial: ByteArray, salt: ByteArray, info: ByteArray, size: Int): ByteArray {
@@ -269,7 +372,7 @@ class HomeKitClient {
             return null
         }
 
-        val cipherText  = ByteArray(encrypted.size)
+        val cipherText = ByteArray(encrypted.size)
         val res = sodium.cryptoStreamChacha20XorIc(cipherText, encrypted, encrypted.size.toLong(), nonce, 1, key)
         if (!res) return null
 
