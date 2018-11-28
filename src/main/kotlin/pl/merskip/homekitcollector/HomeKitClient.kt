@@ -159,6 +159,47 @@ class HomeKitClient {
         val response3 = TLVReader(payload3)
         check(response3.getInt(6) == 6)
 
+        val receivedEncryptedData = response3.get(5)!!
+        logger.info("receivedEncryptedData: ${receivedEncryptedData.hexDescription}")
+
+        val encryptedMessage = receivedEncryptedData.sliceArray(0 until receivedEncryptedData.size - 16)
+        val authTag = receivedEncryptedData.sliceArray(receivedEncryptedData.size - 16 until receivedEncryptedData.size)
+        logger.info("encryptedMessage     : ${encryptedMessage.hexDescription}")
+        logger.info("authTag              : ${authTag.hexDescription}")
+
+        val wtf = verifyAndDecrypt(sodium, encryptedMessage, authTag, ByteArray(0), "PS-Msg06".toByteArray(), sharedKey)
+                ?: error("No wtf")
+
+        val message = TLVReader(wtf)
+
+
+        val accessoryName = message.get(1)!!.toString(Charsets.UTF_8)
+        logger.info("AccessoryNAme: $accessoryName")
+
+        val accessoryPublicKey = message.get(3)!!
+        val accessorySignature = message.get(10)!!
+
+        val hash = hkdfSHA512(
+                srp.sessionKey.rawByteArray,
+                "Pair-Setup-Accessory-Sign-Salt".toByteArray(),
+                "Pair-Setup-Accessory-Sign-Info".toByteArray(),
+                32
+        )
+
+        val material = listOf(hash, accessoryName.toByteArray(), accessoryPublicKey)
+                .flatMap { it.asIterable() }
+                .toByteArray()
+
+
+        val accPubKeySpec = EdDSAPublicKeySpec(accessoryPublicKey, spec)
+        val accLTPK = EdDSAPublicKey(accPubKeySpec )
+
+        sgr.initVerify(accLTPK)
+        if (!sgr.verifyOneShot(material, accessorySignature)) {
+            error("Veryfi failed")
+        }
+
+        logger.info("We are now pared!!!!!")
     }
 
     fun hkdfSHA512(inputKeyingMaterial: ByteArray, salt: ByteArray, info: ByteArray, size: Int): ByteArray {
@@ -202,7 +243,7 @@ class HomeKitClient {
         logger.info("polyKey: ${polyKey.hexDescription}")
 
         val poly1305 = Poly1305()
-                poly1305.init(KeyParameter(polyKey))
+        poly1305.init(KeyParameter(polyKey))
         poly1305.update(msg, 0, msg.size)
 
         val hmac = ByteArray(16)
@@ -213,6 +254,27 @@ class HomeKitClient {
     private fun padding16(size: Int): ByteArray =
             if (size % 16 == 0) ByteArray(0)
             else ByteArray(16 - (size % 16))
+
+    private fun verifyAndDecrypt(
+            sodium: LazySodium,
+            encrypted: ByteArray,
+            hmac: ByteArray,
+            additionalData: ByteArray,
+            nonce: ByteArray,
+            key: ByteArray
+    ): ByteArray? {
+
+        val calculatedHmac = computePoly1305(sodium, encrypted, additionalData, nonce, key)
+        if (!calculatedHmac.contentEquals(hmac)) {
+            return null
+        }
+
+        val cipherText  = ByteArray(encrypted.size)
+        val res = sodium.cryptoStreamChacha20XorIc(cipherText, encrypted, encrypted.size.toLong(), nonce, 1, key)
+        if (!res) return null
+
+        return cipherText
+    }
 
     private fun post(endpoint: String, headers: Map<String, String> = emptyMap(), payload: ByteArray): ByteArray {
 
