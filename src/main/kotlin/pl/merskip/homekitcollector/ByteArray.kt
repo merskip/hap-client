@@ -1,8 +1,6 @@
 package pl.merskip.homekitcollector
 
 import java.math.BigInteger
-import java.nio.ByteBuffer
-import java.util.*
 
 var ByteArray.hexDescription: String
     get() {
@@ -40,17 +38,6 @@ var BigInteger.rawByteArray: ByteArray
             System.arraycopy(bytes, 1, rawBytes, 0, rawBytes.size)
             rawBytes
         }
-    }
-    set(_) {
-        error("This property is read-only")
-    }
-
-var UUID.rawByteArray: ByteArray
-    get() {
-        val bytes = ByteBuffer.allocate(16)
-        bytes.putLong(mostSignificantBits)
-        bytes.putLong(leastSignificantBits)
-        return bytes.array()
     }
     set(_) {
         error("This property is read-only")

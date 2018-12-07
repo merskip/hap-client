@@ -31,6 +31,8 @@ dependencies {
 
     compile "com.goterl.lazycode:lazysodium-java:3.3.0"
     compile "net.java.dev.jna:jna:5.1.0"
+
+    compile 'com.google.code.gson:gson:2.8.5'
 }
 
 compileKotlin {
