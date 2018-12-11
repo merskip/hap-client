@@ -7,7 +7,7 @@ import pl.merskip.homekitcollector.pairing.impl.PairVerifyStartResponseVerificat
 import pl.merskip.homekitcollector.tlv.TLVReader
 import java.net.URL
 
-class PairVerify(val pairCredentials: PairCredentials){
+class PairVerify(private val pairCredentials: PairCredentials){
 
     enum class Step(override val number: Int): Sequence {
         VerifyStartRequest(1),
@@ -17,22 +17,24 @@ class PairVerify(val pairCredentials: PairCredentials){
     }
 
     private val pairingClient: PairingClient = HttpPairingTLVv8Client(
-            URL("http", pairCredentials.host, pairCredentials.post, "/pair-verify")
+            URL("http", pairCredentials.host, pairCredentials.port, "/pair-verify")
     )
 
-    fun verify() {
+    fun verify(): SessionKeys {
 
         val (startResponse, keyPair) = PairVerifyStartRequest()
                 .process(TLVReader(emptyList()), pairingClient)
         checkError(startResponse)
 
-        val (verificationResponse, encryptionKey) = PairVerifyStartResponseVerification(pairCredentials, keyPair)
+        val (verificationResponse, result) = PairVerifyStartResponseVerification(pairCredentials, keyPair)
                 .process(startResponse, pairingClient)
         checkError(verificationResponse)
 
-        val (finishResponse, _) = PairVerifyFinishRequest(pairCredentials, keyPair, encryptionKey)
+        val (finishResponse, _) = PairVerifyFinishRequest(pairCredentials, keyPair, result.encryptionKey)
                 .process(verificationResponse, pairingClient)
         checkError(finishResponse)
+
+        return SessionKeys.createFromSharedKey(result.sharedKey)
     }
 
     // TODO: Remove duplication

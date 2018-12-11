@@ -23,11 +23,14 @@ class Chacha20Poly1305(private val key: ByteArray) {
     }
 
     fun verifyAndDecrypt(cipherTextWithAuthTag: ByteArray, additionalData: ByteArray = ByteArray(0), nonce: String): ByteArray? =
+            verifyAndDecrypt(cipherTextWithAuthTag, additionalData, nonce.toByteArray())
+
+    fun verifyAndDecrypt(cipherTextWithAuthTag: ByteArray, additionalData: ByteArray = ByteArray(0), nonce: ByteArray): ByteArray? =
             verifyAndDecrypt(
                     cipherTextWithAuthTag.sliceArray(0 until cipherTextWithAuthTag.size - 16),
                     cipherTextWithAuthTag.sliceArray(cipherTextWithAuthTag.size - 16 until cipherTextWithAuthTag.size),
                     additionalData,
-                    nonce.toByteArray()
+                    nonce
             )
 
     fun verifyAndDecrypt(cipherText: ByteArray, authTag: ByteArray, additionalData: ByteArray = ByteArray(0), nonce: ByteArray): ByteArray? {

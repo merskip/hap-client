@@ -11,9 +11,14 @@ import pl.merskip.homekitcollector.tlv.TLVReader
 class PairVerifyStartResponseVerification(
         private val pairCredentials: PairCredentials,
         private val diffieHellman: DiffieHellman
-) : PairStepHandler<ByteArray> {
+) : PairStepHandler<PairVerifyStartResponseVerification.Result> {
 
-    override fun process(input: TLVReader, client: PairingClient): Pair<TLVReader, ByteArray> {
+    data class Result(
+        val sharedKey: ByteArray,
+        val encryptionKey: ByteArray
+    )
+
+    override fun process(input: TLVReader, client: PairingClient): Pair<TLVReader, PairVerifyStartResponseVerification.Result> {
 
         val accessoryPublicKey = input.getByteArray(HomeKitTLVTag.PublicKey.tag)
         val accessoryEncryptedData = input.getByteArray(HomeKitTLVTag.EncryptedData.tag)
@@ -39,6 +44,6 @@ class PairVerifyStartResponseVerification(
         if (!engineEdDSA.verify(accessoryInfo, accessorySignature))
             throw FailedExchangeVerificationException()
 
-        return Pair(input, encryptionKey)
+        return Pair(input, Result(sharedKey.asBytes, encryptionKey))
     }
 }
