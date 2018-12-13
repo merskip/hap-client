@@ -4,14 +4,17 @@ import com.google.gson.Gson
 import org.apache.commons.io.IOUtils
 import org.apache.http.client.methods.HttpGet
 import pl.merskip.homekitcollector.archive.Archiver
-import pl.merskip.homekitcollector.http.Http
+import pl.merskip.homekitcollector.http.HTTP
 import pl.merskip.homekitcollector.pairing.PairSetup
 import pl.merskip.homekitcollector.pairing.PairVerify
 import pl.merskip.homekitcollector.response.AccessoriesResponse
 import java.io.File
+import java.util.concurrent.TimeUnit
 
 
 fun main(args: Array<String>) {
+
+    HTTP.client.start()
 
     val pairCredentials = Archiver.require(File("pair_credentials.json")) {
         PairSetup("192.168.1.8", 51826)
@@ -20,12 +23,12 @@ fun main(args: Array<String>) {
 
     val sessionKeys = PairVerify(pairCredentials).verify()
 
-    Http.updateSessionKeys(sessionKeys)
+    HTTP.updateSessionKeys(sessionKeys)
 
     val getHttp = HttpGet("http://192.168.1.8:${pairCredentials.port}/accessories")
 
 
-    val response = Http.client.execute(getHttp)
+    val response = HTTP.client.execute(getHttp, null).get(60, TimeUnit.SECONDS)
     println(response)
 
     val responseContent = IOUtils.toByteArray(response.entity.content)

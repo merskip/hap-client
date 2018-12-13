@@ -4,7 +4,7 @@ import org.apache.commons.io.IOUtils
 import org.apache.http.HttpStatus
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.entity.ByteArrayEntity
-import pl.merskip.homekitcollector.http.Http
+import pl.merskip.homekitcollector.http.HTTP
 import pl.merskip.homekitcollector.loggerFor
 import pl.merskip.homekitcollector.pairing.PairingClient
 import pl.merskip.homekitcollector.pairing.UnexpectedHTTPStatus
@@ -12,6 +12,7 @@ import pl.merskip.homekitcollector.tlv.TLVData
 import pl.merskip.homekitcollector.tlv.TLVEncoder
 import pl.merskip.homekitcollector.tlv.TLVReader
 import java.net.URL
+import java.util.concurrent.TimeUnit
 
 class HttpPairingTLVv8Client(
         private val url: URL
@@ -27,7 +28,7 @@ class HttpPairingTLVv8Client(
         httpPost.entity = ByteArrayEntity(TLVEncoder().encode(body))
 
         logger.debug("Request HTTP POST to ${httpPost.uri}...")
-        val httpResponse = Http.client.execute(httpPost)
+        val httpResponse = HTTP.client.execute(httpPost, null).get(60, TimeUnit.SECONDS)
 
         val status = httpResponse.statusLine.statusCode
         logger.debug("Response status code: $status")

@@ -16,7 +16,7 @@ class PairSetup(val host: String, val port: Int) {
     }
 
     private val pairingClient: PairingClient = HttpPairingTLVv8Client(
-            URL("http", host, port, "/pair-setup")
+            URL("https", host, port, "/pair-setup")
     )
 
     fun pair(pinCode: String): PairCredentials {
