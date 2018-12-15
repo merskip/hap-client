@@ -2,9 +2,7 @@ package pl.merskip.hapsolution.hapclient
 
 import com.google.gson.Gson
 import org.apache.commons.io.IOUtils
-import org.apache.http.HttpResponse
 import org.apache.http.client.methods.HttpGet
-import org.apache.http.concurrent.FutureCallback
 import pl.merskip.hapsolution.hapclient.archive.Archiver
 import pl.merskip.hapsolution.hapclient.http.HTTP
 import pl.merskip.hapsolution.hapclient.model.Accessory
@@ -15,7 +13,7 @@ import pl.merskip.hapsolution.hapclient.response.AccessoriesResponse
 import java.io.File
 import java.util.concurrent.TimeUnit
 
-class HomeKit(host: String, port: Int, pinCode: String) {
+class HAPClient(host: String, port: Int, pinCode: String) {
 
     private val pairCredentials: PairCredentials
 
@@ -31,21 +29,8 @@ class HomeKit(host: String, port: Int, pinCode: String) {
     }
 
     fun getAccessories(): List<Accessory> {
-        val getHttp = HttpGet("http://192.168.1.8:${pairCredentials.port}/accessories")
-        val response = HTTP.client.execute(getHttp, object: FutureCallback<HttpResponse> {
-            override fun cancelled() {
-                println("asda")
-            }
-
-            override fun completed(result: HttpResponse?) {
-                println(result)
-            }
-
-            override fun failed(ex: Exception?) {
-                println(ex)
-            }
-
-        }).get(60, TimeUnit.SECONDS)
+        val getHttp = HttpGet("http://${pairCredentials.host}:${pairCredentials.port}/accessories")
+        val response = HTTP.client.execute(getHttp, null).get(60, TimeUnit.SECONDS)
 
         val responseContent = IOUtils.toByteArray(response.entity.content)
         val accessoriesResponse = Gson().fromJson(String(responseContent), AccessoriesResponse::class.java)
