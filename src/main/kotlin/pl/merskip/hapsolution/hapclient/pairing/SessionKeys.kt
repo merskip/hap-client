@@ -1,5 +1,7 @@
 package pl.merskip.hapsolution.hapclient.pairing
 
+import pl.merskip.hapsolution.hapclient.crypto.HKDFSHA512
+
 data class SessionKeys(
     val accessoryToControllerKey: ByteArray,
     val controllerToAccessoryKey: ByteArray

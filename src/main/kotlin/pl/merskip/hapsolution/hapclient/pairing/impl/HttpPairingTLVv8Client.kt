@@ -4,6 +4,13 @@ import org.apache.commons.io.IOUtils
 import org.apache.http.HttpStatus
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.entity.ByteArrayEntity
+import pl.merskip.hapsolution.hapclient.http.HTTP
+import pl.merskip.hapsolution.hapclient.loggerFor
+import pl.merskip.hapsolution.hapclient.pairing.PairingClient
+import pl.merskip.hapsolution.hapclient.pairing.UnexpectedHTTPStatus
+import pl.merskip.hapsolution.hapclient.tlv.TLVData
+import pl.merskip.hapsolution.hapclient.tlv.TLVEncoder
+import pl.merskip.hapsolution.hapclient.tlv.TLVReader
 import java.net.URL
 import java.util.concurrent.TimeUnit
 

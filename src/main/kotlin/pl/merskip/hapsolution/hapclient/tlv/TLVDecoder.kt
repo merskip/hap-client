@@ -1,5 +1,8 @@
 package pl.merskip.hapsolution.hapclient.tlv
 
+import pl.merskip.hapsolution.hapclient.hexDescription
+import pl.merskip.hapsolution.hapclient.loggerFor
+
 class TLVDecoder {
 
     private val logger = loggerFor(javaClass)

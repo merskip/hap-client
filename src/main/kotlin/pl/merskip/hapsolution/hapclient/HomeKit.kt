@@ -5,6 +5,13 @@ import org.apache.commons.io.IOUtils
 import org.apache.http.HttpResponse
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.concurrent.FutureCallback
+import pl.merskip.hapsolution.hapclient.archive.Archiver
+import pl.merskip.hapsolution.hapclient.http.HTTP
+import pl.merskip.hapsolution.hapclient.model.Accessory
+import pl.merskip.hapsolution.hapclient.pairing.PairCredentials
+import pl.merskip.hapsolution.hapclient.pairing.PairSetup
+import pl.merskip.hapsolution.hapclient.pairing.PairVerify
+import pl.merskip.hapsolution.hapclient.response.AccessoriesResponse
 import java.io.File
 import java.util.concurrent.TimeUnit
 

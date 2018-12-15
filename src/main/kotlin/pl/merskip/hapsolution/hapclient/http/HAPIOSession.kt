@@ -1,6 +1,8 @@
 package pl.merskip.hapsolution.hapclient.http
 
 import org.apache.http.nio.reactor.IOSession
+import pl.merskip.hapsolution.hapclient.http.proxy.IOSessionProxy
+import pl.merskip.hapsolution.hapclient.pairing.SessionKeys
 
 class HAPIOSession(session: IOSession): IOSessionProxy(session) {
 

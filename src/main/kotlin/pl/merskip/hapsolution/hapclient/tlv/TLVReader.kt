@@ -1,5 +1,6 @@
 package pl.merskip.hapsolution.hapclient.tlv
 
+import pl.merskip.hapsolution.hapclient.toBigInteger
 import java.math.BigInteger
 
 class TLVReader(

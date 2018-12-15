@@ -1,9 +1,16 @@
 package pl.merskip.hapsolution.hapclient.pairing.impl
 
+import pl.merskip.hapsolution.hapclient.crypto.Chacha20Poly1305
+import pl.merskip.hapsolution.hapclient.crypto.DiffieHellman
+import pl.merskip.hapsolution.hapclient.crypto.EdDSA
+import pl.merskip.hapsolution.hapclient.pairing.*
+import pl.merskip.hapsolution.hapclient.tlv.TLVBuilder
+import pl.merskip.hapsolution.hapclient.tlv.TLVReader
+
 class PairVerifyFinishRequest(
-        private val pairCredentials: PairCredentials,
-        private val diffieHellman: DiffieHellman,
-        private val encryptionKey: ByteArray
+    private val pairCredentials: PairCredentials,
+    private val diffieHellman: DiffieHellman,
+    private val encryptionKey: ByteArray
 ) : PairStepHandler<Unit> {
 
 

@@ -2,6 +2,10 @@ package pl.merskip.hapsolution.hapclient.http
 
 import org.apache.http.util.ByteArrayBuffer
 import org.bouncycastle.util.Pack
+import pl.merskip.hapsolution.hapclient.crypto.Chacha20Poly1305
+import pl.merskip.hapsolution.hapclient.hexDescription
+import pl.merskip.hapsolution.hapclient.http.proxy.ByteChannelProxy
+import pl.merskip.hapsolution.hapclient.pairing.SessionKeys
 import java.nio.ByteBuffer
 import java.nio.channels.ByteChannel
 import java.util.*

@@ -1,5 +1,7 @@
 package pl.merskip.hapsolution.hapclient.pairing
 
+import pl.merskip.hapsolution.hapclient.pairing.impl.*
+import pl.merskip.hapsolution.hapclient.tlv.TLVReader
 import java.net.URL
 
 class PairSetup(val host: String, val port: Int) {

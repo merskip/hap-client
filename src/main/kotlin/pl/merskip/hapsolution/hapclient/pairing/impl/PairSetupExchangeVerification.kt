@@ -1,6 +1,14 @@
 package pl.merskip.hapsolution.hapclient.pairing.impl
 
 import net.i2p.crypto.eddsa.EdDSAPublicKey
+import pl.merskip.hapsolution.hapclient.crypto.Chacha20Poly1305
+import pl.merskip.hapsolution.hapclient.crypto.EdDSA
+import pl.merskip.hapsolution.hapclient.crypto.HKDFSHA512
+import pl.merskip.hapsolution.hapclient.pairing.FailedExchangeVerificationException
+import pl.merskip.hapsolution.hapclient.pairing.HomeKitTLVTag
+import pl.merskip.hapsolution.hapclient.pairing.PairStepHandler
+import pl.merskip.hapsolution.hapclient.pairing.PairingClient
+import pl.merskip.hapsolution.hapclient.tlv.TLVReader
 
 class PairSetupExchangeVerification(
         private val exchangeResult: PairSetupExchangeRequest.Result

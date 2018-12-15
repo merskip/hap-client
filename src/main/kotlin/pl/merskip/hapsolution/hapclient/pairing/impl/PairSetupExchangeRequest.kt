@@ -2,6 +2,13 @@ package pl.merskip.hapsolution.hapclient.pairing.impl
 
 import net.i2p.crypto.eddsa.EdDSAPrivateKey
 import net.i2p.crypto.eddsa.EdDSAPublicKey
+import pl.merskip.hapsolution.hapclient.crypto.Chacha20Poly1305
+import pl.merskip.hapsolution.hapclient.crypto.EdDSA
+import pl.merskip.hapsolution.hapclient.crypto.HKDFSHA512
+import pl.merskip.hapsolution.hapclient.pairing.*
+import pl.merskip.hapsolution.hapclient.srp.SRP6Client
+import pl.merskip.hapsolution.hapclient.tlv.TLVBuilder
+import pl.merskip.hapsolution.hapclient.tlv.TLVReader
 import java.util.*
 
 class PairSetupExchangeRequest(private val srp: SRP6Client): PairStepHandler<PairSetupExchangeRequest.Result> {

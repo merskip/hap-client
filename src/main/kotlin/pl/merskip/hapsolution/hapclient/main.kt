@@ -3,6 +3,11 @@ package pl.merskip.hapsolution.hapclient
 import com.google.gson.Gson
 import org.apache.commons.io.IOUtils
 import org.apache.http.client.methods.HttpGet
+import pl.merskip.hapsolution.hapclient.archive.Archiver
+import pl.merskip.hapsolution.hapclient.http.HTTP
+import pl.merskip.hapsolution.hapclient.pairing.PairSetup
+import pl.merskip.hapsolution.hapclient.pairing.PairVerify
+import pl.merskip.hapsolution.hapclient.response.AccessoriesResponse
 import java.io.File
 import java.util.concurrent.TimeUnit
 

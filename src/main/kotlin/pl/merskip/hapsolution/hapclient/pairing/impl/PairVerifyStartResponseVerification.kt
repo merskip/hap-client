@@ -1,10 +1,16 @@
 package pl.merskip.hapsolution.hapclient.pairing.impl
 
 import com.goterl.lazycode.lazysodium.utils.Key
+import pl.merskip.hapsolution.hapclient.crypto.Chacha20Poly1305
+import pl.merskip.hapsolution.hapclient.crypto.DiffieHellman
+import pl.merskip.hapsolution.hapclient.crypto.EdDSA
+import pl.merskip.hapsolution.hapclient.crypto.HKDFSHA512
+import pl.merskip.hapsolution.hapclient.pairing.*
+import pl.merskip.hapsolution.hapclient.tlv.TLVReader
 
 class PairVerifyStartResponseVerification(
-        private val pairCredentials: PairCredentials,
-        private val diffieHellman: DiffieHellman
+    private val pairCredentials: PairCredentials,
+    private val diffieHellman: DiffieHellman
 ) : PairStepHandler<PairVerifyStartResponseVerification.Result> {
 
     data class Result(

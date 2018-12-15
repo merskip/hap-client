@@ -1,5 +1,6 @@
 package pl.merskip.hapsolution.hapclient.srp
 
+import pl.merskip.hapsolution.hapclient.fromHex
 import java.math.BigInteger
 import java.security.MessageDigest
 

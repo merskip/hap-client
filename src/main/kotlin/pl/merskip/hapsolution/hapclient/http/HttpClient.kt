@@ -10,6 +10,7 @@ import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor
 import org.apache.http.nio.conn.ManagedNHttpClientConnection
 import org.apache.http.nio.conn.SchemeIOSessionStrategy
 import org.apache.http.protocol.HttpContext
+import pl.merskip.hapsolution.hapclient.pairing.SessionKeys
 
 
 object HTTP {

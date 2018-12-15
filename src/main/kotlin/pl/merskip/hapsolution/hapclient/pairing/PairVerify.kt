@@ -1,5 +1,10 @@
 package pl.merskip.hapsolution.hapclient.pairing
 
+import pl.merskip.hapsolution.hapclient.pairing.impl.HttpPairingTLVv8Client
+import pl.merskip.hapsolution.hapclient.pairing.impl.PairVerifyFinishRequest
+import pl.merskip.hapsolution.hapclient.pairing.impl.PairVerifyStartRequest
+import pl.merskip.hapsolution.hapclient.pairing.impl.PairVerifyStartResponseVerification
+import pl.merskip.hapsolution.hapclient.tlv.TLVReader
 import java.net.URL
 
 class PairVerify(private val pairCredentials: PairCredentials){

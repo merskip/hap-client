@@ -3,6 +3,7 @@ package pl.merskip.hapsolution.hapclient.crypto
 import org.bouncycastle.crypto.digests.SHA512Digest
 import org.bouncycastle.crypto.generators.HKDFBytesGenerator
 import org.bouncycastle.crypto.params.HKDFParameters
+import pl.merskip.hapsolution.hapclient.rawByteArray
 import java.math.BigInteger
 
 object HKDFSHA512 {

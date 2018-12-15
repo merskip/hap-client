@@ -1,5 +1,9 @@
 package pl.merskip.hapsolution.hapclient.pairing
 
+import pl.merskip.hapsolution.hapclient.tlv.TLVBuilder
+import pl.merskip.hapsolution.hapclient.tlv.TLVData
+import pl.merskip.hapsolution.hapclient.tlv.TLVReader
+
 interface PairingClient {
 
     fun request(body: List<TLVData>): TLVReader

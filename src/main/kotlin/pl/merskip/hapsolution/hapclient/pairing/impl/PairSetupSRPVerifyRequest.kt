@@ -1,5 +1,15 @@
 package pl.merskip.hapsolution.hapclient.pairing.impl
 
+import pl.merskip.hapsolution.hapclient.pairing.HomeKitTLVTag
+import pl.merskip.hapsolution.hapclient.pairing.PairSetup
+import pl.merskip.hapsolution.hapclient.pairing.PairStepHandler
+import pl.merskip.hapsolution.hapclient.pairing.PairingClient
+import pl.merskip.hapsolution.hapclient.rawByteArray
+import pl.merskip.hapsolution.hapclient.srp.SRP6Client
+import pl.merskip.hapsolution.hapclient.srp.SRP6GroupParams
+import pl.merskip.hapsolution.hapclient.tlv.TLVReader
+import pl.merskip.hapsolution.hapclient.toBigInteger
+
 class PairSetupSRPVerifyRequest(private val pinCode: String): PairStepHandler<SRP6Client> {
 
     override fun process(input: TLVReader, client: PairingClient): Pair<TLVReader, SRP6Client> {
