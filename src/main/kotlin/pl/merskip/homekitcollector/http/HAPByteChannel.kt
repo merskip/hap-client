@@ -29,7 +29,7 @@ class HAPByteChannel(private val sessionKeys: SessionKeys, channel: ByteChannel)
             val encodedData = getEncodedBuffer(sessionKeys.controllerToAccessoryKey, source)
 
             super.write(ByteBuffer.wrap(encodedData))
-            encodedData.size
+            source.size
         } else {
             0
         }

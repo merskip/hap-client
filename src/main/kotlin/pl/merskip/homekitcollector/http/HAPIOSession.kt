@@ -9,7 +9,7 @@ class HAPIOSession(session: IOSession): IOSessionProxy(session) {
     private val originalChannel = super.channel()
     private var channel: HAPByteChannel? = null
 
-    override fun channel() = channel ?: originalChannel
+        override fun channel() = channel ?: originalChannel
 
     fun upgrade(sessionKeys: SessionKeys) {
         channel = HAPByteChannel(sessionKeys, originalChannel)

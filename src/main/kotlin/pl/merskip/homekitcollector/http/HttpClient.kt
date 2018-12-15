@@ -16,6 +16,7 @@ import pl.merskip.homekitcollector.pairing.SessionKeys
 object HTTP {
 
     private var hapIOSession: HAPIOSession? = null
+    var sessionKeys: SessionKeys? = null
 
     val client: CloseableHttpAsyncClient = {
 
@@ -37,6 +38,7 @@ object HTTP {
     }()
 
     fun updateSessionKeys(sessionKeys: SessionKeys) {
+        this.sessionKeys = sessionKeys
         hapIOSession?.upgrade(sessionKeys)
     }
 }

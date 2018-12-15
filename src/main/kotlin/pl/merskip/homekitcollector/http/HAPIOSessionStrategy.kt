@@ -8,5 +8,12 @@ class HAPIOSessionStrategy: SchemeIOSessionStrategy {
 
     override fun isLayeringRequired() = true
 
-    override fun upgrade(host: HttpHost?, iosession: IOSession?) = HAPIOSession(iosession!!)
+    override fun upgrade(host: HttpHost?, iosession: IOSession?): IOSession? {
+        val session = HAPIOSession(iosession!!)
+        val sessionKeys = HTTP.sessionKeys
+        if (sessionKeys != null) {
+            session.upgrade(sessionKeys)
+        }
+        return session
+    }
 }
