@@ -19,4 +19,9 @@ data class Service(
 
         @SerializedName("hidden")
         val isHidden: Boolean
-)
+) {
+
+        fun findCharacteristic(characteristic: CharacteristicIdentifier) = findCharacteristic(characteristic.uuid)
+
+        fun findCharacteristic(uuid: UUID): Characteristic? = characteristics.find { it.type == uuid }
+}

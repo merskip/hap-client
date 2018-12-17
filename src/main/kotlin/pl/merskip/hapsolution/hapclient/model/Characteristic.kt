@@ -14,6 +14,19 @@ data class Characteristic(
         @SerializedName("perms")
         val permissions: List<String>,
 
+        /**
+         * Characteristic Value Formats:
+         *  - bool
+         *  - uint8
+         *  - uint16
+         *  - uint32
+         *  - uint64
+         *  - int
+         *  - float
+         *  - string
+         *  - tlv8
+         *  - data
+         */
         @SerializedName("format")
         val format: String,
 
@@ -23,6 +36,14 @@ data class Characteristic(
         @SerializedName("description")
         val description: String,
 
+        /**
+         * Characteristic Units
+         *  - celsius
+         *  - percentage
+         *  - arcdegrees
+         *  - lux
+         *  - seconds
+         */
         @SerializedName("unit")
         val unit: String?,
 

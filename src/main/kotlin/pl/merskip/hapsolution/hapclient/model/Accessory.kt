@@ -1,6 +1,7 @@
 package pl.merskip.hapsolution.hapclient.model
 
 import com.google.gson.annotations.SerializedName
+import java.util.*
 
 data class Accessory(
 
@@ -9,5 +10,9 @@ data class Accessory(
 
         @SerializedName("services")
         val services: List<Service>
+) {
 
-)
+        fun findService(service: ServiceIdentifier) = findService(service.uuid)
+
+        fun findService(uuid: UUID): Service? = services.find { it.type == uuid }
+}
